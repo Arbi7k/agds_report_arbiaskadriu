@@ -1,0 +1,67 @@
+---
+title: "Report"
+author: "Arbias Kadriu"
+date: "2023-03-09"
+output: html_document
+---
+
+# AGDS Report
+
+## Telling a story from data
+
+
+```{r}
+# Load the airquality dataset
+data(airquality)
+airdata <- datasets::airquality
+
+airdata <- cbind(seq(nrow(airdata)), airdata)
+
+# Rename the row number column
+names(airdata)[1] <- "Days"
+names(airdata)[5] <- "Temperature (F)"
+
+# Clean the data by removing any rows with missing values
+airdata <- na.omit(airdata)
+
+
+
+library(ggplot2)
+ggplot(airdata, aes(x = Days, y = `Temperature (F)`)) + geom_line() + ggtitle("Temperature in New York over Mai to September")
+
+```
+
+
+```{r}
+# Figure 2: Plot and connection of temperature and ozone with a boxplot of ozone
+
+data(airquality)
+
+ggplot(airquality, aes(x = Temp, y = Ozone)) +
+  geom_point(alpha = 0.5) +
+  ggtitle("Scatterplot of Temperature and Ozone")
+
+ggplot(airquality, aes(y = Ozone)) +
+  geom_boxplot() +
+  ggtitle("Boxplot of Ozone")
+
+# The plot shows a correlation between temperature and ozone, but which is very weak. It can be seen that at higher temperature there is also a higher ozone, this can come from that the ozone reflex the sunlight. More sunlight resumes to higher temperature on New York. The boxplot shows how reliable the data is and how many outliers are in those data. It can be seen that there are not many outliers, which indicates that the data is reliable. These high values could be an indicate that New York as unusually high levels of pollution on those certain days. Polution can also affect the ozone aswell the temperature.
+
+```
+
+
+
+
+```{r}
+# Figure 3: The plot shows that the ozone tends to be at highest on the later months around July, August and September.
+data(airquality)
+
+ggplot(airquality, aes(x = Day, y = Ozone, group = Month, color = Month)) +
+  geom_line() +
+  ggtitle("Temporal Pattern of Ozone Levels") +
+  xlab("Day") +
+  ylab("Ozone Concentration")
+
+
+```
+
