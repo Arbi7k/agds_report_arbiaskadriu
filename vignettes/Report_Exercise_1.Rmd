@@ -10,14 +10,14 @@ output: html_document
 ### Task 1 
 
 ```{r}
-list.files('../vignettes')
+list.files('../Data')
 ```
 
 
 ## first the document for this task will be brought to the RStudio and it will be controlled if the transfer worked.
 ```{r}
-list.files("/Users/arbi7/Documents/agds_report_arbiaskadriu")
-databaseS1 <- readr::read_csv("/Users/arbi7/Documents/agds_report_arbiaskadriu/AGDS_Exercise_1.csv")
+
+databaseS1 <- readr::read_csv("../Data/AGDS_Exercise_1.csv")
 
 show(databaseS1)
 
