@@ -7,7 +7,6 @@ output: html_document
 
 # AGDS Report
 
-## Cleaning dat afrom elecated CO2 experiments
 
 ### Task 1 
 ## first the document for this task will be brought to the RStudio and it will be controlled if the transfer worked.

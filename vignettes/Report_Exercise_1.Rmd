@@ -8,6 +8,12 @@ output: html_document
 # AGDS Report
 
 ### Task 1 
+
+```{r}
+list.files('../vignettes')
+```
+
+
 ## first the document for this task will be brought to the RStudio and it will be controlled if the transfer worked.
 ```{r}
 list.files("/Users/arbi7/Documents/agds_report_arbiaskadriu")
