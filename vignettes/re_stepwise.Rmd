@@ -6,3 +6,165 @@ output: html_document
 ---
 
 # AGDS Report
+
+```{r}
+
+mydata <- readr::read_csv("../Data/df_for_stepwise_regression.csv")
+
+show(mydata)
+```
+
+```{r}
+# Set the number of predictors to be considered
+p <- 1
+
+# Initialize variables to store the best model
+best_rsq <- 0
+best_aic <- Inf
+best_model <- NULL
+
+# Loop over all models with p predictors
+for (i in 2:p+1) {
+  # Create a formula for the current model
+  formula <- as.formula(paste0("USTAR ~ ", paste0(names(mydata)[2:i], collapse = " + ")))
+  
+  # Fit the model and compute its R-squared
+  model <- lm(formula, data = mydata)
+  rsq <- summary(model)$r.squared
+  
+  # Compute the AIC of the current model
+  aic <- AIC(model)
+  
+  # Update the best model if the current model is better
+  if (rsq > best_rsq) {
+    best_rsq <- rsq
+    best_aic <- aic
+    best_model <- model
+  }
+}
+
+# Print the best model
+summary(best_model)
+
+```
+
+```{r}
+# Step 1: Create a vector of all predictor variable names
+predictor_vars <- names(mydata)[-1]
+
+# Step 2: Initialize variables to store the best model and its R-squared
+best_rsq <- 0
+best_model <- NULL
+
+# Step 3: Loop over all predictor variables and fit a simple linear regression model
+for (predictor in predictor_vars) {
+  # Create a formula for the current model
+  formula <- as.formula(paste0("GPP_NT_VUT_REF ~ ", predictor))
+  
+  # Fit the model and compute its R-squared
+  model <- lm(formula, data = mydata)
+  rsq <- summary(model)$r.squared
+  
+  # Update the best model if the current model is better
+  if (rsq > best_rsq) {
+    best_rsq <- rsq
+    best_model <- model
+  }
+}
+
+# Print the best model
+summary(best_model)
+
+# Create a scatter plot of the best predictor variable against the response variable
+plot(mydata$SW_IN_F, mydata$GPP_NT_VUT_REF, main = "Model", xlab = mydata$SW_IN_F, ylab = mydata$GPP_NT_VUT_REF)
+
+# Stepwise forward regression
+# Initialize the list of selected variables
+selected_vars <- c()
+
+# Initialize variables to store the best model and its AIC
+best_aic <- Inf
+best_model <- NULL
+
+# Loop over the number of predictors to include in the model
+for (i in 1:length(predictor_vars)) {
+  # Loop over all predictor variables
+  for (predictor in predictor_vars) {
+    # Skip the predictor if it has already been selected
+    if (predictor %in% selected_vars) next
+    
+    # Create a formula for the current model
+    formula <- as.formula(paste0("GPP_NT_VUT_REF ~ ", paste0(c(selected_vars, predictor), collapse = " + ")))
+    
+    # Fit the model and compute its AIC
+    model <- lm(formula, data = mydata)
+    aic <- AIC(model)
+    
+    # Update the best model if the current model is better
+    if (aic < best_aic) {
+      best_aic <- aic
+      best_model <- model
+      best_predictors <- c(selected_vars, predictor)
+    }
+  }
+  
+  # Add the best predictor to the list of selected variables
+  selected_vars <- best_predictors
+}
+
+# Print the best model
+summary(best_model)
+
+# Create a scatter plot matrix of the selected predictor variables
+pairs(mydata[,c("GPP_NT_VUT_REF", selected_vars)], main = "Scatter Plot")
+
+```
+
+
+
+
+
+
+
+
+
+
+```{r results='hide'}
+list.files('../data') #listing the files to find the right data
+```
+```{r results='hide', message=FALSE}
+half_hourly_fluxes <- readr::read_csv("../data/df_for_stepwise_regression.csv") # reading the data into R
+```
+
+```{r}
+visdat::vis_miss(half_hourly_fluxes) #checking for missing values
+```
+
+```{r}
+FitStart <- lm(GPP_NT_VUT_REF ~ 1, data = half_hourly_fluxes) # create an empty model with just an intercept
+```
+
+
+```{r}
+half_hourly_fluxes_new_order <- dplyr::select(half_hourly_fluxes,`GPP_NT_VUT_REF`, everything()) #moving our response variable (GPP) column to position one
+```
+
+
+```{r}
+mod_summaries <- list() 
+```
+
+```{r}
+for(i in 2:ncol(half_hourly_fluxes_new_order)) {                 # Head of for-loop
+ 
+  predictors_i <- colnames(half_hourly_fluxes_new_order)[i]    # Create vector of predictor names
+  mod_summaries[[i - 1]] <- summary(     # Store regression model summary in list
+    lm(GPP_NT_VUT_REF ~ ., half_hourly_fluxes_new_order[ , c("GPP_NT_VUT_REF", predictors_i)]))
+ 
+}
+```
+
+```{r}
+mod_summaries
+```
+
