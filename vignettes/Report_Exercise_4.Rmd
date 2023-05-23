@@ -1,5 +1,5 @@
 ---
-title: "report_exercise_4"
+title: "Report Exercise 4"
 author: "Arbias Kadriu"
 date: "02.05.2023"
 output: html_document
@@ -11,26 +11,27 @@ output: html_document
 ### Preparation of the data
 
 ```{r results='hide'}
-list.files('../data') #listing the files to find the right data
+list.files('../data') #Getting the data with the files
 ```
 
 ```{r results='hide', message=FALSE}
-half_hourly_fluxes <- readr::read_csv("../data/df_for_stepwise_regression.csv") # reading the data into R
+half_hourly_fluxes <- readr::read_csv("../data/df_for_stepwise_regression.csv") # data transfering into R
 ```
 
 ```{r}
-visdat::vis_miss(half_hourly_fluxes) #checking for missing values
+visdat::vis_miss(half_hourly_fluxes) #looking if there are any missing values
 ```
 
-#It can be seen that some rows contain missing values. It will be important to keep that in mind for the interpretation of the results and for the creation of the model. Rows with missing data will be deleted to work with the data.
+
+It can be seen that some rows contain missing values. It will be important to keep that in mind for the interpretation of the results and for the creation of the model. Rows with missing data will be deleted to work with the data.
 
 
 ```{r results='hide'}
-summary(half_hourly_fluxes) #looking at the exact number of missing values (NA) per row
+summary(half_hourly_fluxes) #looking where the missing data in which row is
 ```
 
 ```{r warning=FALSE, message=FALSE}
-half_hourly_fluxes_new_order <- dplyr::select(half_hourly_fluxes,`GPP_NT_VUT_REF`, everything()) #moving the column of the response variable (GPP) to position one
+half_hourly_fluxes_new_order <- dplyr::select(half_hourly_fluxes,`GPP_NT_VUT_REF`, everything()) #moving the column of the response variable (GPP) to the first position
 ```
 
 ```{r warning=FALSE, message=FALSE}
@@ -38,23 +39,23 @@ half_hourly_fluxes_clean <- stats::na.omit(half_hourly_fluxes_new_order)
 ```
 
 
-## Stepwsise forward regression - bivariate models in a loop
+### Stepwsise forward regression - bivariate models in a loop
 
 ```{r results='hide'}
 
-# Defining the response variable
+# Naming the response variable
 response_var <- "GPP_NT_VUT_REF"
 
-# Creating a list to store the results
+# Creating a list
 results <- list()
 
-# Loop through all predictor variables to build all the bivariate models
+# Going through all variables to build all the bivariate models
 for (predictor in c("none", "siteid", "TIMESTAMP", "TA_F", "SW_IN_F", "LW_IN_F", "VPD_F", 
                     "PA_F", "P_F", "WS_F", "TA_F_MDS", "SW_IN_F_MDS", "LW_IN_F_MDS",
                     "VPD_F_MDS", "CO2_F_MDS", "PPFD_IN", "USTAR")) {
   
   if (predictor == "none") {
-    # Building a empty model with just the intercepte
+    # Empty model is built
     formula_string <- paste0(response_var, " ~ 1")
   } else {
     # Building the model with the corresponsding predictor
@@ -67,34 +68,34 @@ for (predictor in c("none", "siteid", "TIMESTAMP", "TA_F", "SW_IN_F", "LW_IN_F",
   # Fit the linear model
   model <- lm(formula, data = half_hourly_fluxes_clean)
   
-  # Store the results of the model in the list
+  # Bringing the results in a list
   results[[predictor]] <- c(formula_string, AIC(model), summary(model)$r.squared, summary(model)$adj.r.squared)
 }
 ```
 
 ```{r warning=FALSE, message=FALSE}
-# Converting the list of results into a data frame
+# Bringing the list of results into a data frame which can be seen
 results_bivariate <- as.data.frame(do.call(rbind, results))
 
 # Renaming the columns
 colnames(results_bivariate) <- c("formula", "AIC", "r_squared", "adj_r_squared")
 
-# Converting the AIC to be numeric
+# Convertin AIC to the numeric format
 results_bivariate$AIC <- as.numeric(results_bivariate$AIC)
 
 # Sort the data frame by AIC value in ascending order
 results_bivariate <- results_bivariate[order(results_bivariate$AIC), ]
 
-# Print the results (of the 10 best models)
-results_bivariate[1:10,]
+# Print the results of the ten best AIC values
+print(results_bivariate[1:10,])
 ```
 
 
-# Here we have a collection of bivariate models sorted in ascending order by the AIC. This means that the topmost model is considered the best since it has the lowest AIC value. In this particular case, the predictor "PPFD_IN" emerges as the best option. Since "<none>" is not the optimal choice, it is logical to continue improving the model through a stepwise forward regression.
+Here we have a collection of bivariate models sorted in ascending order by the AIC. This means that the topmost model is considered the best since it has the lowest AIC value. In this particular case, the predictor "PPFD_IN" emerges as the best option. Since "<none>" is not the optimal choice, it is logical to continue improving the model through a stepwise forward regression.
 
-# Moreover, it is noticeable that both the R-squared and adjusted R-squared values increase as we move higher up the list (indicating better AIC values). This observation fits with the idea that a higher R-squared indicates a better model of the data. Similarly, a higher adjusted R-squared suggests increased generalizability of the model. Consequently, it is reasonable for the best model (with the highest AIC) to also possess the highest adjusted R-squared. While it is possible for the best model to not have the highest R-squared, in this case, the highest R-squared value corresponds to the lowest AIC. This relationship makes sense since the R-squared metric evaluates the model's performance on the existing data, whereas the AIC considers the model's suitability for new data.
+Moreover, it is noticeable that both the R-squared and adjusted R-squared values increase as we move higher up the list (indicating better AIC values). This observation fits with the idea that a higher R-squared indicates a better model of the data. Similarly, a higher adjusted R-squared suggests increased generalizability of the model. Consequently, it is reasonable for the best model (with the highest AIC) to also possess the highest adjusted R-squared. While it is possible for the best model to not have the highest R-squared, in this case, the highest R-squared value corresponds to the lowest AIC. This relationship makes sense since the R-squared metric evaluates the model's performance on the existing data, whereas the AIC considers the model's suitability for new data.
 
-## Plot of the best possible bivariate model
+### Plotting the best value
 ```{r warning=FALSE, message=FALSE}
 library(ggplot2)
 
@@ -105,16 +106,16 @@ ggplot(half_hourly_fluxes_clean, aes(x = PPFD_IN , y = GPP_NT_VUT_REF)) +
        title = "Regression between GGP and PPFD") #plotting the result of the regression with one predictor
 ```
 
-# There appears to be a potential linear correlation between these two values, but it is not possible to make a statements about their dependence since any observed correlation could be a coincidence. However, it is evident that the GPP_NT_VUT_REF values cannot be accurately described solely by a linear regression model with PPFD_IN as the predictor. Consequently, it is reasonable to proceed with a stepwise approach in an attempt to enhance the model and capture the underlying relationships more effectively.
+There appears to be a potential linear correlation between these two values, but it is not possible to make a statements about their dependence since any observed correlation could be a coincidence. However, it is evident that the GPP_NT_VUT_REF values cannot be accurately described solely by a linear regression model with PPFD_IN as the predictor. Consequently, it is reasonable to proceed with a stepwise approach in an attempt to enhance the model and capture the underlying relationships more effectively.
 
-## Full stepwise forward regression with a loop
+### Full stepwise forward regression with a loop
 
 ```{r warning=FALSE, message=FALSE}
-# Defining the response variable
+# Naming
 response_var <- "GPP_NT_VUT_REF"
-# Creating a vector to store the selected predictors
+# Vector to store the selected predictors
 selected_predictors <- c()
-# Creating a list to store the models
+# List to store the models
 models <- list()
 # Loop through the predictors
 for (i in 1:ncol(half_hourly_fluxes_clean)) {
@@ -204,7 +205,7 @@ cat("Best model based on AIC:\n")
 print(dataframe_model_values[1, ])
 ```
 
-# The selection of the model is justified by opting for the lowest AIC, which signifies the best model. Additionally, it is reasonable that the process stopped after including the predictor P_F, as further additions did not improve the AIC values. It is worth noting that the highest R-squared value is not necessarily found within the best model. This discrepancy arises because R-squared only represents the performance of the model on the specific data used for fitting. On the other hand, adjusted R-squared incorporates the model's generalizability and its suitability for new data with the same response variable and predictors.The step function identifies the model with the lowest AIC, thereby determining the best model. Therefore, the AIC value plays a decisive role in the selection process.
+The selection of the model is justified by opting for the lowest AIC, which signifies the best model. Additionally, it is reasonable that the process stopped after including the predictor P_F, as further additions did not improve the AIC values. It is worth noting that the highest R-squared value is not necessarily found within the best model. This discrepancy arises because R-squared only represents the performance of the model on the specific data used for fitting. On the other hand, adjusted R-squared incorporates the model's generalizability and its suitability for new data with the same response variable and predictors.The step function identifies the model with the lowest AIC, thereby determining the best model. Therefore, the AIC value plays a decisive role in the selection process.
 
 ```{r warning=FALSE, message=FALSE}
 library(tidyverse, warn.conflicts = FALSE)
@@ -213,7 +214,7 @@ library(psych, warn.conflicts = FALSE)
 pairs.panels(half_hourly_fluxes_clean[,c("PPFD_IN", "siteid", "LW_IN_F", "VPD_F_MDS", "TA_F_MDS","SW_IN_F", "WS_F", "USTAR",  "VPD_F", "CO2_F_MDS", "PA_F", "TIMESTAMP", "P_F")], method= "spearman", lm=TRUE)
 ```
 
-## Full stepwise regression with the function step (to onfirm the results of the loop)
+### Full stepwise regression with the function step (to onfirm the results of the loop)
 
 ```{r results='hide', message=FALSE}
 FitStart <- lm(GPP_NT_VUT_REF ~ 1, data = half_hourly_fluxes_clean)
@@ -236,7 +237,7 @@ stats::formula(model_step)
 One can see that the result is the same as the result achieved by the loop before. This shows that the loop worked properly. 
 
 
-## other optionsto handle the missing data - Imputing the data
+### Other option to handle the missing data - Imputing the data
 
 As we deleted the missing values, we now have a impact on the quality of the data as almost 2/3 of the rows were deleted. Therefore on could try another option of handling missing data. Another option would be to Impute the data. There one possibility would be to impute the mean, but a better option is to work with mice and run a iterativ process that predicts what the missing values could be based on the values that are not missing. There we can pool the best result and then do a stepwise forward regression with this imputed data. I'm going to show one possibility but will not let the code evaluate as it could take some time to knit that way.$
 
@@ -254,9 +255,9 @@ imp_data #checking the used methods
 
 
 ```{r eval=FALSE}
-plot(imp_data) #checking if convergence was achieved
+plot(imp_data) #checking if convergence was correctly achieved
 ```
-afterwards one could run the stepwise forward regression with the imputed data and then compare the outcome with the other model(the one based on the dataframe where the missing values have been deleted). Then one could check which model is better and makes more sense. But as the mice function would need too long to knit i won't to the stepwise forward regression.
+Afterwards one could run the stepwise forward regression with the imputed data and then compare the outcome with the other model(the one based on the dataframe where the missing values have been deleted). Then one could check which model is better and makes more sense. But as the mice function would need too long to knit i won't to the stepwise forward regression.
 
 
 

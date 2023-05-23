@@ -11,7 +11,6 @@ output: html_document
 ### Reading and Cleaning the Davos dataset
 
 ```{r}
-
 library(lubridate)
 library(dplyr)
 FLX_Dav <- readr::read_csv("../data/FLX_CH-Dav_FLUXNET2015_FULLSET_DD_1997-2014_1-3.csv")|> # reading the data for Davos into R   
