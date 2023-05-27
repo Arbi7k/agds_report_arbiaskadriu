@@ -65,3 +65,4 @@ ggplot(airquality, aes(x = Day, y = Ozone, group = Month, color = Month)) +
 
 ```
 
+### The data are not reliable enough to take some informations out of it because the measuremts took place at different times (night and day time), which can affect some of the data and make them unreliable.

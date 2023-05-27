@@ -16,16 +16,17 @@ library(caret)
 library(tidyr)
 ```
 
+
 ```{r}
-# Splitting the data with a 30/70 split
-set.seed(1982)  # made for reproducibility
+# The data is split in a 30/70 format
+set.seed(1982)  # This is made for reproducibility
 split <- rsample::initial_split(half_hourly_fluxes_clean, prop = 0.7, strata = "VPD_F")
 half_hourly_fluxes_train <- rsample::training(split)
 half_hourly_fluxes_test <- rsample::testing(split)
 ```
 
 ```{r}
-# Model and pre-processing formulation, use all variables but LW_IN_F
+# Model and pre-processing formulation, using all variables but LW_IN_F
 pp <- recipes::recipe(GPP_NT_VUT_REF ~ SW_IN_F + VPD_F + TA_F, 
                       data = half_hourly_fluxes_train |> drop_na()) |> 
   recipes::step_BoxCox(all_predictors()) |> 
@@ -34,7 +35,7 @@ pp <- recipes::recipe(GPP_NT_VUT_REF ~ SW_IN_F + VPD_F + TA_F,
 ```
 
 ```{r}
-# Fit linear regression model
+# Linear regression model is fitted
 mod_lm <- caret::train(
   pp, 
   data = half_hourly_fluxes_train |> drop_na(),
@@ -45,7 +46,7 @@ mod_lm <- caret::train(
 ```
 
 ```{r}
-# Fit KNN model
+# KNN model is fitted
 mod_knn <- caret::train(
   pp, 
   data = half_hourly_fluxes_train|> drop_na(), 
@@ -60,7 +61,7 @@ mod_knn <- caret::train(
 ```{r}
 # make model evaluation into a function to reuse code
 eval_model <- function(mod, df_train, df_test){
-  #loading packages
+  #loading the needed packages
   library(dplyr)
   library(ggplot2)
   library(yardstick)

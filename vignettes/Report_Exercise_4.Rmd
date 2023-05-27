@@ -205,7 +205,7 @@ cat("Best model based on AIC:\n")
 print(dataframe_model_values[1, ])
 ```
 
-The selection of the model is justified by opting for the lowest AIC, which signifies the best model. Additionally, it is reasonable that the process stopped after including the predictor P_F, as further additions did not improve the AIC values. It is worth noting that the highest R-squared value is not necessarily found within the best model. This discrepancy arises because R-squared only represents the performance of the model on the specific data used for fitting. On the other hand, adjusted R-squared incorporates the model's generalizability and its suitability for new data with the same response variable and predictors.The step function identifies the model with the lowest AIC, thereby determining the best model. Therefore, the AIC value plays a decisive role in the selection process.
+### The selection of the model is justified by opting for the lowest AIC, which signifies the best model. Additionally, it is reasonable that the process stopped after including the predictor P_F, as further additions did not improve the AIC values. It is worth noting that the highest R-squared value is not necessarily found within the best model. This discrepancy arises because R-squared only represents the performance of the model on the specific data used for fitting. On the other hand, adjusted R-squared incorporates the model's generalizability and its suitability for new data with the same response variable and predictors.The step function identifies the model with the lowest AIC, thereby determining the best model. Therefore, the AIC value plays a decisive role in the selection process.
 
 ```{r warning=FALSE, message=FALSE}
 library(tidyverse, warn.conflicts = FALSE)
@@ -234,12 +234,12 @@ model_step <- stats::step(FitStart, direction = "forward", scope = formula(FitAl
 ```{r warning=FALSE, message=FALSE}
 stats::formula(model_step)
 ```
-One can see that the result is the same as the result achieved by the loop before. This shows that the loop worked properly. 
+### One can see that the result is the same as the result achieved by the loop before. This shows that the loop worked properly. 
 
 
 ### Other option to handle the missing data - Imputing the data
 
-As we deleted the missing values, we now have a impact on the quality of the data as almost 2/3 of the rows were deleted. Therefore on could try another option of handling missing data. Another option would be to Impute the data. There one possibility would be to impute the mean, but a better option is to work with mice and run a iterativ process that predicts what the missing values could be based on the values that are not missing. There we can pool the best result and then do a stepwise forward regression with this imputed data. I'm going to show one possibility but will not let the code evaluate as it could take some time to knit that way.$
+### As we deleted the missing values, we now have a impact on the quality of the data as almost 2/3 of the rows were deleted. Therefore on could try another option of handling missing data. Another option would be to Impute the data. There one possibility would be to impute the mean, but a better option is to work with mice and run a iterativ process that predicts what the missing values could be based on the values that are not missing. There we can pool the best result and then do a stepwise forward regression with this imputed data. I'm going to show one possibility but will not let the code evaluate as it could take some time to knit that way.$
 
 ```{r results='hide', warning=FALSE, message=FALSE}
 mice::md.pattern(half_hourly_fluxes) #checking the pattern of the missing data
@@ -257,7 +257,7 @@ imp_data #checking the used methods
 ```{r eval=FALSE}
 plot(imp_data) #checking if convergence was correctly achieved
 ```
-Afterwards one could run the stepwise forward regression with the imputed data and then compare the outcome with the other model(the one based on the dataframe where the missing values have been deleted). Then one could check which model is better and makes more sense. But as the mice function would need too long to knit i won't to the stepwise forward regression.
+### Afterwards one could run the stepwise forward regression with the imputed data and then compare the outcome with the other model(the one based on the dataframe where the missing values have been deleted). Then one could check which model is better and makes more sense. But as the mice function would need too long to knit i won't to the stepwise forward regression.
 
 
 

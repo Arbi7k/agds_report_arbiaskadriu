@@ -371,10 +371,9 @@ eval_model1 <- function(mod1, df_train1, df_test1, mod2, df_train2, df_test2){
   
   return(out)
 }
+```
 
-
-
-
+```{r}
 # make model evaluation into a function to reuse code for the combined model
 eval_model <- function(mod, df_train, df_test){
   #loading packages

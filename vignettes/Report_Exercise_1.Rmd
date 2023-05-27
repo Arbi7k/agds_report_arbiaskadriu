@@ -7,14 +7,13 @@ output: html_document
 
 # AGDS Report
 
-### Task 1 
-
+##Task 1 
 ```{r}
 list.files('../Data')
 ```
 
 
-## first the document for this task will be brought to the RStudio and it will be controlled if the transfer worked.
+### First the document for this task will be brought to the RStudio and it will be controlled if the transfer worked.
 ```{r}
 
 databaseS1 <- readr::read_csv("../Data/AGDS_Exercise_1.csv")
@@ -23,8 +22,8 @@ show(databaseS1)
 
 ```
 
-### Task 2
-# The transfered data, which is called previously databaseS1 will be transformed, will be renamed to sample_date_RR and a new columns will be added. This new row represents the log_response_ratio, which gives back the logarithm of increased CO2 divided by ambient CO2
+## Task 2
+### The transfered data, which is called previously databaseS1 will be transformed, will be renamed to sample_date_RR and a new columns will be added. This new row represents the log_response_ratio, which gives back the logarithm of increased CO2 divided by ambient CO2
 ```{r}
 sample_date_RR <- dplyr::mutate(databaseS1, log_response_ratio = log(databaseS1$`increased CO2`/databaseS1$`ambient CO2`))
 
@@ -32,7 +31,7 @@ show(sample_date_RR)
 
 ```
 
-# Now 
+### Now same places with the same year are put together the column names are corrected
 ```{r}
 
 sample_date_yearly <- sample_date_RR |>
@@ -51,7 +50,8 @@ show(sample_date_yearly)
 knitr::kable(sample_date_yearly)
 ```
 
-### Task 3
+## Task 3
+### The three phases are made and seperated
 ```{r}
 early_phase <- dplyr::filter(sample_date_RR, sample_date_RR$`Time (years)` <3) |>
   dplyr::summarise(log_response_ratio_mean = mean(log_response_ratio))
@@ -70,6 +70,7 @@ late_phase <- dplyr::filter(sample_date_RR, sample_date_RR$`Time (years)` >=6) |
 
 ```
 
+### The three phases are put together and a good looking table is made out of the data
 ```{r}
 all_phases <- rbind(early_phase, mid_phase, late_phase)
 all_phases <- dplyr::mutate(all_phases, "Phases" = c("early Phase (under 3 years since start)", "mid phase (between 3 and 6 years since start)", "late phase (over 6 years since start)"))
